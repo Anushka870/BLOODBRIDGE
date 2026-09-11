@@ -1,1 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodBridge - Real-Time Lifesaving Network</title>
+  <style>
+    :root { 
+      --primary: #d90429; 
+      --primary-dark: #a0001e;
+      --dark: #2b2d42; 
+      --bg: #f0f4f8; 
+      --card: #ffffff; 
+      --border: #e2e8f0; 
+      --urgent: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--dark); line-height: 1.6; }
+    
+    header { background: #fff; padding: 1rem 2rem; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .brand { color: var(--primary); font-size: 1.5rem; font-weight: 900; text-decoration: none; letter-spacing: -0.5px; }
+    
+    .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-btn { background: none; border: none; padding: 0.6rem 1.2rem; font-weight: 700; cursor: pointer; border-radius: 8px; color: #64748b; transition: 0.2s; }
+    .nav-btn:hover { background: #f1f5f9; color: var(--dark); }
+    .nav-btn.active { background: var(--primary); color: #fff; }
+    
+    .container { max-width: 1250px; margin: 2rem auto; padding: 0 1rem; }
+    .tab-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+    .tab-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .card { background: var(--card); padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 1.5rem; }
+    h2 { margin-bottom: 1.5rem; color: var(--dark); font-weight: 800; font-size: 1.4rem; }
+    
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .grid-reg { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    @media (max-width: 768px) { .grid-reg { grid-template-columns: 1fr; } }
+    
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    label { font-size: 0.85rem; font-weight: 700; color: #475569; }
+    input, select { padding: 0.8rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; transition: 0.2s; }
+    input:focus, select:focus { border-color: var(--primary); outline: none; }
+    
+    .btn { background: var(--primary); color: #fff; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(217, 4, 41, 0.2); }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: #fff; }
+    .btn-small { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; }
+    .btn-neutral { background: #64748b; color: #fff; }
+    
+    /* Directory Custom Styling */
+    .filter-bar { background: #fff; padding: 1.5rem; border-radius: 12px; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+    .table-custom th { padding: 0 1.2rem; color: #64748b; font-weight: 700; text-align: left; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
+    .table-custom tbody tr { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: 0.2s; }
+    .table-custom tbody tr:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.08); }
+    .table-custom td { padding: 1.2rem; border: none; font-size: 0.95rem; vertical-align: middle; }
+    .table-custom td:first-child { border-radius: 12px 0 0 12px; }
+    .table-custom td:last-child { border-radius: 0 12px 12px 0; }
+    
+    .bg-col { font-size: 1.8rem; font-weight: 900; color: var(--primary); text-align: center; background: #fff5f6; border-radius: 12px 0 0 12px !important; width: 80px; }
+    
+    .badge { padding: 0.35rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: inline-block; }
+    .bg-green { background: #dcfce7; color: #166534; }
+    .bg-red { background: #fee2e2; color: #991b1b; }
+    .bg-vibrant { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; }
+    .bg-bank { background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white; }
+    
+    /* Countdown Badges */
+    .timer-badge { font-weight: 800; padding: 0.4rem 0.8rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+    .timer-normal { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .timer-urgent { background: #fee2e2; color: #b91c1c; border: 2px solid #ef4444; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { from { opacity: 0.85; transform: scale(1); } to { opacity: 1; transform: scale(1.03); } }
+    
+    .badge-rookie { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+    .badge-hero { background: #fce7f3; color: #db2777; border: 1px solid #fbcfe8; }
+    .badge-legend { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-new { background: #f1f5f9; color: #475569; }
 
+    .quiz-card { background: #f0fdf4; padding: 1.5rem; border-radius: 12px; border: 2px solid #bbf7d0; height: fit-content; }
+    .quiz-card h3 { color: #166534; margin-bottom: 1rem; }
+
+    /* Bottom Live Sections */
+    .footer-live-zone { margin-top: 3.5rem; border-top: 3px dashed var(--border); padding-top: 2.5rem; }
+    .stat-banner { background: linear-gradient(135deg, #1e1b4b 0%, #31103f 100%); color: #fff; padding: 2.2rem; border-radius: 16px; margin-bottom: 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.5rem; }
+    .death-counter-box { text-align: center; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; padding: 1.2rem 2rem; border-radius: 12px; }
+    .death-counter-num { font-size: 2.8rem; font-weight: 900; color: #f87171; font-family: monospace; letter-spacing: 2px; }
+
+    .inventory-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .inventory-box { background: #fff; border: 1px solid var(--border); border-top: 4px solid var(--primary); padding: 1.2rem 0.8rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    .inventory-box .grp { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .inventory-box .liters { font-size: 1.15rem; font-weight: 800; color: var(--dark); margin: 4px 0; }
+
+    .stories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.2rem; }
+    .story-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); padding: 1.5rem; box-shadow: 0 4px 14px rgba(0,0,0,0.03); position: relative; }
+    .story-quote { font-style: italic; color: #475569; font-size: 0.95rem; margin-bottom: 1rem; }
+    .story-author { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--dark); font-size: 0.9rem; }
+    .story-avatar { width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .modal { background: #fff; padding: 1.5rem; border-radius: 16px; width: 90%; max-width: 350px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="brand">🩸 BloodBridge</a>
+  <div class="nav-tabs">
+    <button class="nav-btn active" onclick="showTab('directory')">Search Directory</button>
+    <button class="nav-btn" onclick="showTab('request')">Post Request</button>
+    <button class="nav-btn" onclick="showTab('register')">Register</button>
+    <button class="nav-btn" onclick="showTab('profile')" style="border: 2px solid var(--primary); margin-left: 10px;">Manage Profile</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ================= 1. DIRECTORY ================= -->
+  <section id="tab-directory" class="tab-section active">
+    <div class="filter-bar">
+      <div class="form-group" style="flex: 2; min-width: 250px;">
+        <label>Search Directory</label>
+        <input type="text" id="search-input" placeholder="Search name, city, PIN, or blood group (e.g. O+)" onkeyup="renderDirectory()">
+      </div>
+      <div class="form-group">
+        <label>Blood Group</label>
+        <select id="filter-bg" onchange="renderDirectory()">
+          <option value="">All Groups</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Max Distance</label>
+        <select id="filter-distance" onchange="renderDirectory()">
+          <option value="999">Any Distance</option>
+          <option value="5">Within 5 km</option>
+          <option value="10">Within 10 km</option>
+          <option value="20">Within 20 km</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Donor Experience</label>
+        <select id="filter-times" onchange="renderDirectory()">
+          <option value="0">Any Donations</option>
+          <option value="1">1+ Times Donated</option>
+          <option value="3">3+ Times Donated</option>
+          <option value="6">6+ Times Donated</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sort By</label>
+        <select id="sort-select" onchange="renderDirectory()">
+          <option value="distance">Distance (Nearest)</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+      <div class="form-group" style="justify-content: center;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: var(--primary);">
+          <input type="checkbox" id="hide-unavailable" onchange="renderDirectory()" style="width: 18px; height: 18px;"> Hide Unavailable
+        </label>
+      </div>
+    </div>
+    
+    <div style="overflow-x: auto; padding-bottom: 2rem;">
+      <table class="table-custom" id="directory-table">
+        <thead>
+          <tr>
+            <th style="text-align: center;">Group</th>
+            <th>Profile Identity</th>
+            <th>Contact Details</th>
+            <th>Location & PIN</th>
+            <th>Distance</th>
+            <th>Stock / Activity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="directory-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 2. POST REQUEST ================= -->
+  <section id="tab-request" class="tab-section">
+    <div class="card">
+      <h2>🚨 Broadcast Emergency Request</h2>
+      <form onsubmit="postRequest(event)">
+        <div class="grid-2">
+          <div class="form-group"><label>Patient Name *</label><input type="text" id="req-patient" required></div>
+          <div class="form-group"><label>Hospital Name *</label><input type="text" id="req-hospital" required></div>
+          <div class="form-group"><label>Contact Phone *</label><input type="tel" id="req-phone" required></div>
+          <div class="form-group"><label>Required Blood Group *</label>
+            <select id="req-bg">
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+            </select>
+          </div>
+          <div class="form-group"><label>City *</label><input type="text" id="req-city" value="Delhi" required></div>
+          <div class="form-group"><label>PIN Code *</label><input type="text" id="req-pin" required></div>
+          <div class="form-group">
+            <label>Quantity Needed (Liters) *</label>
+            <input type="number" step="0.1" id="req-liters" value="0.35" min="0.1" required>
+            <small style="color:#64748b;">(Note: 1 Donor ≈ 350ml or 0.35L)</small>
+          </div>
+          <div class="form-group"><label>Time Needed (Auto-Expires After Duration) *</label>
+            <select id="req-duration">
+              <option value="2">Critical (Within 2 Hours)</option>
+              <option value="6">Urgent (Within 6 Hours)</option>
+              <option value="12">Standard (Within 12 Hours)</option>
+              <option value="24">Next Day (Within 24 Hours)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn" style="margin-top: 1.5rem; width: 100%; font-size: 1.1rem;">Broadcast Alert to Network</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= 3. REGISTER ================= -->
+  <section id="tab-register" class="tab-section">
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+      <button class="btn" onclick="toggleRegForm('donor')" id="btn-show-donor">👤 Register as Individual Donor</button>
+      <button class="btn btn-outline" onclick="toggleRegForm('bank')" id="btn-show-bank">🏥 Register a Blood Bank</button>
+    </div>
+
+    <!-- Individual Donor Registration -->
+    <div id="reg-donor-wrapper" class="grid-reg">
+      <div class="card" style="margin:0;">
+        <h2>Donor Profile Setup</h2>
+        <form onsubmit="registerDonor(event)">
+          <div class="grid-2">
+            <div class="form-group"><label>Full Name</label><input type="text" id="reg-d-name" required></div>
+            <div class="form-group"><label>Phone Number (Used for Login)</label><input type="tel" id="reg-d-phone" required></div>
+            <div class="form-group"><label>Blood Group</label>
+              <select id="reg-d-bg">
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+            </div>
+            <div class="form-group"><label>City</label><input type="text" id="reg-d-city" value="Delhi" required></div>
+            <div class="form-group"><label>PIN Code</label><input type="text" id="reg-d-pin" required></div>
+            <div class="form-group"><label>Times Donated Previously</label><input type="number" id="reg-d-times" value="0" min="0"></div>
+          </div>
+          <button type="submit" class="btn" style="margin-top: 1.5rem;">Create Donor Profile</button>
+        </form>
+      </div>
+
+      <!-- Eligibility Quiz -->
+      <div class="quiz-card">
+        <h3>🩺 Quick Eligibility Check</h3>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>1. Are you 18-65 years old & weigh >50kg?</label>
+          <select id="quiz-1"><option value="yes">Yes</option><option value="no">No</option></select>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>2. Have you donated in the last 90 days?</label>
+          <select id="quiz-2"><option value="no">No</option><option value="yes">Yes</option></select>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>3. Do you have any active infections/fever?</label>
+          <select id="quiz-3"><option value="no">No</option><option value="yes">Yes</option></select>
+        </div>
+        <button class="btn btn-outline" style="width:100%; padding: 0.5rem;" onclick="checkQuiz()">Check Status</button>
+        <div id="quiz-result" style="margin-top: 1rem; font-weight: bold; text-align: center;"></div>
+      </div>
+    </div>
+
+    <!-- Blood Bank Registration -->
+    <div id="reg-bank-wrapper" style="display: none;">
+      <div class="card">
+        <h2>Blood Bank / Facility Setup</h2>
+        <form onsubmit="registerBank(event)">
+          <div class="grid-2">
+            <div class="form-group"><label>Facility Name</label><input type="text" id="reg-b-name" required></div>
+            <div class="form-group"><label>Facility Phone (Used for Login)</label><input type="tel" id="reg-b-phone" required></div>
+            <div class="form-group"><label>City</label><input type="text" id="reg-b-city" value="Delhi" required></div>
+            <div class="form-group"><label>PIN Code</label><input type="text" id="reg-b-pin" required></div>
+          </div>
+          <button type="submit" class="btn" style="margin-top: 1.5rem;">Register Facility</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. MANAGE PROFILE ================= -->
+  <section id="tab-profile" class="tab-section">
+    <div class="card" id="profile-login" style="max-width: 500px; margin: 0 auto;">
+      <h2>Access Your Workspace</h2>
+      <p style="color: #64748b; margin-bottom: 1.5rem;">Enter your registered phone number to verify and edit your data.</p>
+      <div class="form-group">
+        <label>Registered Phone Number</label>
+        <input type="tel" id="auth-phone" placeholder="e.g. 9876543210" style="font-size: 1.1rem; padding: 1rem;">
+      </div>
+      <button class="btn" style="margin-top: 1rem; width: 100%;" onclick="accessProfile()">Verify & Access</button>
+      <p style="margin-top: 1.5rem; font-size: 0.85rem; color: #94a3b8; text-align: center;">Test Accounts: 9876543210 (Donor), 1122334455 (Bank), 9998887776 (Receiver)</p>
+    </div>
+
+    <div id="profile-workspace" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 id="workspace-title" style="color: var(--primary); font-size: 1.5rem;">Welcome</h3>
+        <button class="btn btn-outline" onclick="logoutProfile()">Secure Logout</button>
+      </div>
+
+      <!-- Donor Workspace -->
+      <div id="workspace-donor" style="display: none;">
+        <div class="card">
+          <h2>Edit Donor Profile</h2>
+          <form onsubmit="updateDonor(event)">
+            <div class="grid-2">
+              <div class="form-group"><label>Name</label><input type="text" id="edit-d-name" required></div>
+              <div class="form-group"><label>City</label><input type="text" id="edit-d-city" required></div>
+              <div class="form-group"><label>PIN Code</label><input type="text" id="edit-d-pin" required></div>
+              <div class="form-group"><label>Total Donations</label><input type="number" id="edit-d-times" required></div>
+              <div class="form-group"><label>Overall Availability</label>
+                <select id="edit-d-status"><option value="true">Available for Alerts</option><option value="false">Unavailable / Resting</option></select>
+              </div>
+            </div>
+            <button type="submit" class="btn" style="margin-top: 1.5rem;">Save Profile Updates</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2>🚨 Active City-Wide Emergency Requests</h2>
+          <p style="color:#64748b; margin-bottom: 1rem;">Respond directly to individual requests below. Marking yourself <strong>Unavailable</strong> for an alert removes it from your dashboard.</p>
+          <div id="donor-alerts"></div>
+        </div>
+      </div>
+
+      <!-- Bank Workspace -->
+      <div id="workspace-bank" style="display: none;">
+        <div class="card">
+          <h2>Update Inventory (Liters)</h2>
+          <form onsubmit="updateBank(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+              <div class="form-group"><label>A+</label><input type="number" step="0.1" id="edit-b-A_pos" required></div>
+              <div class="form-group"><label>A-</label><input type="number" step="0.1" id="edit-b-A_neg" required></div>
+              <div class="form-group"><label>B+</label><input type="number" step="0.1" id="edit-b-B_pos" required></div>
+              <div class="form-group"><label>B-</label><input type="number" step="0.1" id="edit-b-B_neg" required></div>
+              <div class="form-group"><label>AB+</label><input type="number" step="0.1" id="edit-b-AB_pos" required></div>
+              <div class="form-group"><label>AB-</label><input type="number" step="0.1" id="edit-b-AB_neg" required></div>
+              <div class="form-group"><label>O+</label><input type="number" step="0.1" id="edit-b-O_pos" required></div>
+              <div class="form-group"><label>O-</label><input type="number" step="0.1" id="edit-b-O_neg" required></div>
+            </div>
+            <button type="submit" class="btn" style="margin-top: 1.5rem;">Update Live Stock</button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Receiver Workspace -->
+      <div id="workspace-receiver" style="display: none;">
+        <div class="card">
+          <h2>Manage Your Active Requests</h2>
+          <div id="receiver-requests"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. LIVE FOOTER ZONE (STATS, INVENTORY & STORIES) ================= -->
+  <div class="footer-live-zone">
+    <!-- Live Critical Shortage Impact Banner -->
+    <div class="stat-banner">
+      <div>
+        <span class="badge" style="background:#ef4444; color:#fff; margin-bottom:8px;">CRITICAL GLOBAL SHORTAGE</span>
+        <h3 style="font-size: 1.7rem; font-weight: 800; margin: 4px 0;">Every Second Without Blood Costs Lives</h3>
+        <p style="color: #cbd5e1; max-width: 580px; font-size: 0.95rem;">
+          Over 12,000 preventable deaths occur every single day worldwide due to lack of timely blood transfusion. Your single voluntary donation can rescue up to 3 critical trauma or maternal care patients.
+        </p>
+      </div>
+      <div class="death-counter-box">
+        <div style="font-size: 0.8rem; font-weight: 800; color: #fca5a5; letter-spacing: 1px; text-transform: uppercase;">
+          Est. Deaths Today Due to Shortage
+        </div>
+        <div class="death-counter-num" id="live-death-ticker">12,410</div>
+        <small style="color: #fca5a5; font-size: 0.75rem;">Simulated live ticker updating in real time</small>
+      </div>
+    </div>
+
+    <!-- Live Aggregated Website Inventory -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2>🌐 Live Network Blood Volume Available (Liters)</h2>
+          <p style="color: #64748b; font-size: 0.9rem;">Real-time sum of verified blood bank reserves + available individual donors (~0.35L capacity per donor).</p>
+        </div>
+        <button class="btn btn-outline btn-small" onclick="renderLiveInventory()">↻ Refresh Volume</button>
+      </div>
+      <div class="inventory-cards-grid" id="live-inventory-grid"></div>
+    </div>
+
+    <!-- Inspiring Real-Life Stories -->
+    <div class="card" style="background: #faf5ff; border: 1px solid #e9d5ff;">
+      <h2 style="color: #6b21a8;">❤️ Real Stories: How Blood Donors Saved Lives</h2>
+      <p style="color: #7e22ce; font-size: 0.95rem;">Behind every single unit requested is a human life hanging in the balance. Here is what voluntary blood donation means:</p>
+      <div class="stories-grid">
+        <div class="story-card">
+          <div class="story-quote">
+            "When my delivery had sudden postpartum hemorrhage complications, AIIMS doctors needed 5 units of O- blood within 90 minutes. Donors who responded through voluntary alerts are the sole reason I am alive today to hold my baby."
+          </div>
+          <div class="story-author">
+            <div class="story-avatar">🤱</div>
+            <div>
+              <div>Meenakshi Sundaram</div>
+              <small style="color:#64748b;">Postpartum Complication Survivor (Delhi)</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <div class="story-quote">
+            "I have Beta-Thalassemia Major and require lifelong packed red blood cell transfusions every 18 days. Every stranger who marks themselves 'Available' gives young patients like me another month of school, college, and laughter."
+          </div>
+          <div class="story-author">
+            <div class="story-avatar">👦</div>
+            <div>
+              <div>Kabir Mehta (Age 16)</div>
+              <small style="color:#64748b;">Thalassemia Warrior (120+ Transfusions)</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <div class="story-quote">
+            "A highway accident on the Ring Road shattered my femur and ruptured an artery. I lost 2 liters of blood before reaching surgery. 6 timely units of B+ blood pulled me back from clinical shock. Please donate regularly."
+          </div>
+          <div class="story-author">
+            <div class="story-avatar">🏍️</div>
+            <div>
+              <div>Arjun Rampal</div>
+              <small style="color:#64748b;">Trauma & Surgery Survivor</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bank Stock Breakdown Modal -->
+<div class="modal-overlay" id="bank-modal">
+  <div class="modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 id="modal-bank-name" style="font-size: 1.1rem; color: var(--dark);">Bank Stock</h3>
+      <button onclick="closeModal()" style="border:none; background:none; font-size:1.8rem; cursor:pointer; color: #94a3b8; line-height: 1;">&times;</button>
+    </div>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead><tr style="background:#f1f5f9;"><th style="padding:0.5rem; text-align:left;">Group</th><th style="padding:0.5rem; text-align:right;">Liters</th></tr></thead>
+      <tbody id="modal-bank-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // --- Initialization & Database ---
+  function initDB() {
+    const now = Date.now();
+    if (!localStorage.getItem('bb_donors_v5')) {
+      localStorage.setItem('bb_donors_v5', JSON.stringify([
+        { id: 1, phone: '9876543210', name: 'Aarav Sharma', bg: 'O+', city: 'Delhi', pin: '110001', locName: 'Connaught Place', distance: 2.5, times: 6, available: true, dismissedRequests: [] },
+        { id: 2, phone: '9988776655', name: 'Priya Patel', bg: 'A-', city: 'Delhi', pin: '110017', locName: 'Saket', distance: 8.0, times: 2, available: false, dismissedRequests: [] },
+        { id: 3, phone: '8877665544', name: 'Rohan Verma', bg: 'B+', city: 'Delhi', pin: '110005', locName: 'Karol Bagh', distance: 5.2, times: 4, available: true, dismissedRequests: [] },
+        { id: 4, phone: '7766554433', name: 'Sneha Iyer', bg: 'AB+', city: 'Delhi', pin: '110016', locName: 'Hauz Khas', distance: 1.5, times: 0, available: true, dismissedRequests: [] }
+      ]));
+    }
+    if (!localStorage.getItem('bb_banks_v5')) {
+      localStorage.setItem('bb_banks_v5', JSON.stringify([
+        { id: 1, phone: '1122334455', name: 'Central Red Cross', city: 'Delhi', pin: '110001', locName: 'Connaught Place', distance: 2.8, stock: { 'A+': 5.5, 'A-': 2.0, 'B+': 3.0, 'B-': 1.0, 'AB+': 1.5, 'AB-': 0.5, 'O+': 12.0, 'O-': 4.0 } },
+        { id: 2, phone: '1133557799', name: 'Apex Hospital Blood Bank', city: 'Delhi', pin: '110017', locName: 'Saket', distance: 9.1, stock: { 'A+': 3.0, 'A-': 0.5, 'B+': 5.0, 'B-': 0.0, 'AB+': 2.0, 'AB-': 0.0, 'O+': 8.5, 'O-': 1.5 } }
+      ]));
+    }
+    if (!localStorage.getItem('bb_requests_v5')) {
+      localStorage.setItem('bb_requests_v5', JSON.stringify([
+        { 
+          id: 1, 
+          phone: '9998887776', 
+          patient: 'Rahul Verma', 
+          hospital: 'AIIMS Delhi', 
+          bg: 'O+', 
+          city: 'Delhi', 
+          pin: '110029', 
+          liters: 2.0, 
+          createdAt: now - (50 * 60 * 1000), // created 50 mins ago
+          expiresAt: now + (70 * 60 * 1000),  // 2 hour duration total (1 hr 10 mins remaining)
+          status: 'open' 
+        },
+        { 
+          id: 2, 
+          phone: '8887776665', 
+          patient: 'Deepak Chopra', 
+          hospital: 'Safdarjung Hospital', 
+          bg: 'O+', 
+          city: 'Delhi', 
+          pin: '110016', 
+          liters: 0.7, 
+          createdAt: now - (5 * 60 * 60 * 1000), // created 5 hrs ago
+          expiresAt: now + (35 * 60 * 1000),     // 6 hr duration total (35 mins remaining - URGENT RED)
+          status: 'open' 
+        },
+        { 
+          id: 3, 
+          phone: '7776665554', 
+          patient: 'Sunita Rao', 
+          hospital: 'Max Super Speciality', 
+          bg: 'B+', 
+          city: 'Delhi', 
+          pin: '110017', 
+          liters: 1.4, 
+          createdAt: now, 
+          expiresAt: now + (6 * 3600 * 1000), 
+          status: 'open' 
+        }
+      ]));
+    }
+  }
+
+  let currentUser = null;
+  let currentRole = null;
+
+  function showTab(tabId) {
+    document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (tabId === 'directory') renderDirectory();
+  }
+
+  function toggleRegForm(type) {
+    if(type === 'donor') {
+      document.getElementById('reg-donor-wrapper').style.display = 'grid';
+      document.getElementById('reg-bank-wrapper').style.display = 'none';
+      document.getElementById('btn-show-donor').className = 'btn';
+      document.getElementById('btn-show-bank').className = 'btn btn-outline';
+    } else {
+      document.getElementById('reg-donor-wrapper').style.display = 'none';
+      document.getElementById('reg-bank-wrapper').style.display = 'block';
+      document.getElementById('btn-show-donor').className = 'btn btn-outline';
+      document.getElementById('btn-show-bank').className = 'btn';
+    }
+  }
+
+  function getGamifiedBadge(times) {
+    if(times >= 6) return `<span class="badge badge-legend">👑 Lifeline Legend</span>`;
+    if(times >= 3) return `<span class="badge badge-hero">🦸 Haemoglobin Hero</span>`;
+    if(times >= 1) return `<span class="badge badge-rookie">🔰 RBC Rookie</span>`;
+    return `<span class="badge badge-new">Newcomer</span>`;
+  }
+
+  // --- 1. Directory View ---
+  function renderDirectory() {
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5')) || [];
+    const banks = JSON.parse(localStorage.getItem('bb_banks_v5')) || [];
+    
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const bgFilter = document.getElementById('filter-bg').value;
+    const maxDistance = parseFloat(document.getElementById('filter-distance').value);
+    const minTimes = parseInt(document.getElementById('filter-times').value);
+    const sortBy = document.getElementById('sort-select').value;
+    const hideUnavailable = document.getElementById('hide-unavailable').checked;
+
+    let combined = [];
+    
+    donors.forEach(d => {
+      if (hideUnavailable && !d.available) return;
+      if (bgFilter && d.bg !== bgFilter) return;
+      if (d.distance > maxDistance) return;
+      if (d.times < minTimes) return;
+      combined.push({ ...d, type: 'Donor' });
+    });
+    
+    banks.forEach(b => {
+      if (b.distance > maxDistance) return;
+      if (bgFilter && b.stock[bgFilter] <= 0) return;
+      combined.push({ ...b, type: 'Bank' });
+    });
+
+    if (search) {
+      combined = combined.filter(item => 
+        item.name.toLowerCase().includes(search) || 
+        item.city.toLowerCase().includes(search) || 
+        (item.pin && item.pin.includes(search)) ||
+        (item.bg && item.bg.toLowerCase().includes(search)) ||
+        (item.locName && item.locName.toLowerCase().includes(search))
+      );
+    }
+
+    combined.sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'distance') return a.distance - b.distance;
+      return 0;
+    });
+
+    let html = '';
+    if (combined.length === 0) {
+      html = `<tr><td colspan="7" style="text-align:center; padding: 3rem; color: #94a3b8; border-radius:12px;">No results match your search criteria.</td></tr>`;
+    } else {
+      combined.forEach(item => {
+        if (item.type === 'Donor') {
+          const status = item.available ? `<span class="badge bg-green">Available</span>` : `<span class="badge bg-red">Unavailable</span>`;
+          const gBadge = getGamifiedBadge(item.times);
+          html += `<tr>
+            <td class="bg-col">${item.bg}</td>
+            <td><strong>${item.name}</strong><br><span class="badge bg-vibrant" style="margin-top:6px;">Individual Donor</span></td>
+            <td>${item.phone}</td>
+            <td>${item.locName || item.city}<br><small style="color:#64748b;">PIN: ${item.pin}</small></td>
+            <td><strong>${item.distance}</strong> km</td>
+            <td>${gBadge}</td>
+            <td>${status}</td>
+          </tr>`;
+        } else {
+          const displayBg = bgFilter ? bgFilter : 'Multi';
+          const total = Object.values(item.stock).reduce((a, v) => a + parseFloat(v), 0).toFixed(1);
+          html += `<tr>
+            <td class="bg-col" style="font-size: 1.3rem; color: #64748b; background:#f8fafc;">${displayBg}</td>
+            <td><strong>${item.name}</strong><br><span class="badge bg-bank" style="margin-top:6px;">Blood Bank</span></td>
+            <td>${item.phone}</td>
+            <td>${item.locName || item.city}<br><small style="color:#64748b;">PIN: ${item.pin}</small></td>
+            <td><strong>${item.distance}</strong> km</td>
+            <td>
+              <div style="font-weight:700;">${total} L Stocked</div>
+              <button class="btn btn-outline btn-small" style="margin-top:4px;" onclick="viewBankStock(${item.id})">Breakdown</button>
+            </td>
+            <td><span class="badge bg-green">Active Facility</span></td>
+          </tr>`;
+        }
+      });
+    }
+    document.getElementById('directory-body').innerHTML = html;
+  }
+
+  // --- Modal Logic ---
+  function viewBankStock(bankId) {
+    const bank = JSON.parse(localStorage.getItem('bb_banks_v5')).find(b => b.id === bankId);
+    document.getElementById('modal-bank-name').innerText = bank.name;
+    let html = '';
+    for(const [bg, liters] of Object.entries(bank.stock)) {
+      if(liters > 0) {
+        html += `<tr>
+          <td style="padding:0.5rem; font-weight: 800; color: var(--primary); border-bottom: 1px solid #eee;">${bg}</td>
+          <td style="padding:0.5rem; text-align:right; border-bottom: 1px solid #eee;">${liters} L</td>
+        </tr>`;
+      }
+    }
+    document.getElementById('modal-bank-body').innerHTML = html || '<tr><td colspan="2" style="text-align:center; padding:1rem;">No Stock available</td></tr>';
+    document.getElementById('bank-modal').style.display = 'flex';
+  }
+  function closeModal() { document.getElementById('bank-modal').style.display = 'none'; }
+
+  // --- Quiz Logic ---
+  function checkQuiz() {
+    const q1 = document.getElementById('quiz-1').value;
+    const q2 = document.getElementById('quiz-2').value;
+    const q3 = document.getElementById('quiz-3').value;
+    const res = document.getElementById('quiz-result');
+    if (q1 === 'yes' && q2 === 'no' && q3 === 'no') {
+      res.style.color = '#166534';
+      res.innerText = '✅ You are eligible to register and donate!';
+    } else {
+      res.style.color = '#991b1b';
+      res.innerText = '❌ You do not meet the criteria currently.';
+    }
+  }
+
+  // --- 2. Post Request with Expiry Duration ---
+  function postRequest(e) {
+    e.preventDefault();
+    const durationHours = parseFloat(document.getElementById('req-duration').value);
+    const now = Date.now();
+    const expiresAt = now + (durationHours * 60 * 60 * 1000);
+
+    const reqs = JSON.parse(localStorage.getItem('bb_requests_v5')) || [];
+    reqs.push({
+      id: Date.now(),
+      patient: document.getElementById('req-patient').value,
+      hospital: document.getElementById('req-hospital').value,
+      phone: document.getElementById('req-phone').value,
+      bg: document.getElementById('req-bg').value,
+      city: document.getElementById('req-city').value,
+      pin: document.getElementById('req-pin').value,
+      liters: parseFloat(document.getElementById('req-liters').value),
+      createdAt: now,
+      expiresAt: expiresAt,
+      status: 'open'
+    });
+    localStorage.setItem('bb_requests_v5', JSON.stringify(reqs));
+    alert(`Emergency request broadcasted! It will automatically expire after ${durationHours} hours.`);
+    e.target.reset();
+  }
+
+  // --- 3. Registrations ---
+  function registerDonor(e) {
+    e.preventDefault();
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5')) || [];
+    donors.push({
+      id: Date.now(),
+      name: document.getElementById('reg-d-name').value,
+      phone: document.getElementById('reg-d-phone').value,
+      bg: document.getElementById('reg-d-bg').value,
+      city: document.getElementById('reg-d-city').value,
+      pin: document.getElementById('reg-d-pin').value,
+      times: parseInt(document.getElementById('reg-d-times').value) || 0,
+      distance: (Math.random() * 8 + 1).toFixed(1),
+      available: true,
+      dismissedRequests: []
+    });
+    localStorage.setItem('bb_donors_v5', JSON.stringify(donors));
+    alert('Donor profile created successfully!');
+    e.target.reset();
+  }
+
+  function registerBank(e) {
+    e.preventDefault();
+    const banks = JSON.parse(localStorage.getItem('bb_banks_v5')) || [];
+    banks.push({
+      id: Date.now(),
+      name: document.getElementById('reg-b-name').value,
+      phone: document.getElementById('reg-b-phone').value,
+      city: document.getElementById('reg-b-city').value,
+      pin: document.getElementById('reg-b-pin').value,
+      distance: (Math.random() * 8 + 1).toFixed(1),
+      stock: { 'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'AB+': 0, 'AB-': 0, 'O+': 0, 'O-': 0 }
+    });
+    localStorage.setItem('bb_banks_v5', JSON.stringify(banks));
+    alert('Blood Bank registered successfully!');
+    e.target.reset();
+  }
+
+  // --- 4. Profile Management ---
+  function accessProfile() {
+    const phone = document.getElementById('auth-phone').value.trim();
+    if (!phone) return alert('Enter phone number');
+
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5')) || [];
+    const banks = JSON.parse(localStorage.getItem('bb_banks_v5')) || [];
+    const reqs = JSON.parse(localStorage.getItem('bb_requests_v5')) || [];
+
+    if (donors.find(d => d.phone === phone)) {
+      currentUser = donors.find(d => d.phone === phone);
+      if(!currentUser.dismissedRequests) currentUser.dismissedRequests = [];
+      currentRole = 'donor';
+      loadDonorWorkspace();
+    } else if (banks.find(b => b.phone === phone)) {
+      currentUser = banks.find(b => b.phone === phone);
+      currentRole = 'bank';
+      loadBankWorkspace();
+    } else if (reqs.find(r => r.phone === phone)) {
+      currentUser = { phone: phone }; 
+      currentRole = 'receiver';
+      loadReceiverWorkspace();
+    } else {
+      alert('Phone number not found in any database. Please register first.');
+      return;
+    }
+
+    document.getElementById('profile-login').style.display = 'none';
+    document.getElementById('profile-workspace').style.display = 'block';
+  }
+
+  function logoutProfile() {
+    currentUser = null;
+    currentRole = null;
+    document.getElementById('profile-login').style.display = 'block';
+    document.getElementById('profile-workspace').style.display = 'none';
+    document.getElementById('auth-phone').value = '';
+  }
+
+  function loadDonorWorkspace() {
+    document.getElementById('workspace-donor').style.display = 'block';
+    document.getElementById('workspace-bank').style.display = 'none';
+    document.getElementById('workspace-receiver').style.display = 'none';
+    
+    document.getElementById('workspace-title').innerText = `Donor Workspace: ${currentUser.name}`;
+    document.getElementById('edit-d-name').value = currentUser.name;
+    document.getElementById('edit-d-city').value = currentUser.city;
+    document.getElementById('edit-d-pin').value = currentUser.pin;
+    document.getElementById('edit-d-times').value = currentUser.times;
+    document.getElementById('edit-d-status').value = currentUser.available.toString();
+
+    renderDonorAlerts();
+  }
+
+  function formatTimeRemaining(ms) {
+    if (ms <= 0) return "Expired";
+    const totalSecs = Math.floor(ms / 1000);
+    const hrs = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    if (hrs > 0) return `${hrs}h ${mins}m left`;
+    return `${mins}m ${secs}s left`;
+  }
+
+  function renderDonorAlerts() {
+    const now = Date.now();
+    const allReqs = JSON.parse(localStorage.getItem('bb_requests_v5')) || [];
+    
+    // Filter active alerts:
+    // 1. status is 'open'
+    // 2. matches donor blood group and city
+    // 3. Has NOT expired (expiresAt > now) -> request automatically goes down when expired!
+    // 4. Has NOT been marked unavailable/dismissed by this donor
+    const validAlerts = allReqs.filter(r => 
+      r.status === 'open' && 
+      r.bg === currentUser.bg && 
+      r.city.toLowerCase() === currentUser.city.toLowerCase() &&
+      r.expiresAt > now &&
+      !(currentUser.dismissedRequests && currentUser.dismissedRequests.includes(r.id))
+    );
+
+    const alertsDiv = document.getElementById('donor-alerts');
+    
+    // If donor overall availability is off, do not show emergency alerts
+    if (!currentUser.available) {
+      alertsDiv.innerHTML = '<p style="color:#64748b; padding: 1rem; background: #fee2e2; border-radius: 8px;">Your profile is set to <strong>Unavailable / Resting</strong>. You will not receive emergency alerts until you toggle it back to Available.</p>';
+      return;
+    }
+
+    if (validAlerts.length > 0) {
+      alertsDiv.innerHTML = validAlerts.map(r => {
+        const donorsNeeded = Math.ceil(r.liters / 0.35);
+        const timeLeftMs = r.expiresAt - now;
+        const isCriticalHour = timeLeftMs <= (60 * 60 * 1000); // 1 hr or less remaining
+        const timerClass = isCriticalHour ? 'timer-badge timer-urgent' : 'timer-badge timer-normal';
+        const pinMatch = r.pin === currentUser.pin ? `<span style="color:#166534; font-weight:bold;">(In your PIN Area!)</span>` : `(PIN: ${r.pin})`;
+
+        return `
+        <div id="alert-card-${r.id}" style="background: #fffbeb; border-left: 5px solid ${isCriticalHour ? '#ef4444' : '#f59e0b'}; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+          <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+            <strong style="font-size: 1.1rem; color:#b45309;">URGENT: ${r.liters}L of ${r.bg} needed!</strong>
+            <span class="${timerClass}">⏳ ${formatTimeRemaining(timeLeftMs)}</span>
+          </div>
+          <div style="color: #475569; font-size: 0.95rem; margin-bottom: 0.5rem;">
+            Volume requires approximately <strong>${donorsNeeded} donors</strong> at ~350ml per person.
+          </div>
+          <div style="color: #475569; font-size: 0.95rem; background: #fef3c7; padding: 0.8rem; border-radius: 6px; margin-bottom: 0.8rem;">
+            <strong>Patient:</strong> ${r.patient} (${r.hospital})<br>
+            <strong>Location:</strong> ${r.city} ${pinMatch}<br>
+            <strong>Emergency Contact:</strong> <a href="tel:${r.phone}" style="color:var(--primary); font-weight:bold;">${r.phone}</a>
+          </div>
+          
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="tel:${r.phone}" class="btn btn-small" style="text-decoration:none; background:#16a34a;">✅ I Am Available / Call Now</a>
+            <button class="btn btn-neutral btn-small" onclick="dismissRequestForDonor(${r.id})">❌ Mark Unavailable (Remove Alert)</button>
+          </div>
+        </div>
+      `}).join('');
+    } else {
+      alertsDiv.innerHTML = '<p style="color:#64748b; padding: 1rem; background: #f8fafc; border-radius: 8px;">No active emergency broadcasts for your blood type right now.</p>';
+    }
+  }
+
+  // Donor marks unavailable for this specific alert -> Alert is removed immediately
+  function dismissRequestForDonor(reqId) {
+    if(!currentUser.dismissedRequests) currentUser.dismissedRequests = [];
+    currentUser.dismissedRequests.push(reqId);
+    
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5'));
+    const idx = donors.findIndex(d => d.id === currentUser.id);
+    if(idx !== -1) {
+      donors[idx] = currentUser;
+      localStorage.setItem('bb_donors_v5', JSON.stringify(donors));
+    }
+    
+    renderDonorAlerts();
+  }
+
+  function loadBankWorkspace() {
+    document.getElementById('workspace-donor').style.display = 'none';
+    document.getElementById('workspace-bank').style.display = 'block';
+    document.getElementById('workspace-receiver').style.display = 'none';
+    document.getElementById('workspace-title').innerText = `Facility: ${currentUser.name}`;
+    
+    ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].forEach(bg => {
+      const id = 'edit-b-' + bg.replace('+', '_pos').replace('-', '_neg');
+      document.getElementById(id).value = currentUser.stock[bg] || 0;
+    });
+  }
+
+  function loadReceiverWorkspace() {
+    document.getElementById('workspace-donor').style.display = 'none';
+    document.getElementById('workspace-bank').style.display = 'none';
+    document.getElementById('workspace-receiver').style.display = 'block';
+    document.getElementById('workspace-title').innerText = `Receiver Dashboard`;
+
+    const now = Date.now();
+    const myReqs = JSON.parse(localStorage.getItem('bb_requests_v5')).filter(r => r.phone === currentUser.phone);
+    
+    document.getElementById('receiver-requests').innerHTML = myReqs.map(r => {
+      const isExpired = r.expiresAt <= now && r.status === 'open';
+      const timeLeftMs = r.expiresAt - now;
+      const displayStatus = isExpired ? 'EXPIRED' : r.status.toUpperCase();
+      const statusBadge = isExpired ? 'bg-red' : (r.status === 'open' ? 'bg-bank' : 'bg-green');
+
+      return `
+      <div style="border:1px solid #e2e8f0; padding:1.5rem; border-radius:12px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; background: #fff;">
+        <div>
+          <strong style="font-size:1.1rem;">${r.patient} <span style="color:var(--primary);">(${r.bg})</span></strong><br>
+          <span style="color:#64748b;">${r.hospital}, ${r.city} (${r.pin})</span><br>
+          <div style="margin-top: 4px; font-weight: bold; color: var(--dark);">Total Quantity: ${r.liters} Liters</div>
+          <div style="margin-top: 8px; display:flex; align-items:center; gap:8px;">
+            Status: <span class="badge ${statusBadge}">${displayStatus}</span>
+            ${!isExpired && r.status === 'open' ? `<span class="${timeLeftMs <= 3600000 ? 'timer-badge timer-urgent' : 'timer-badge timer-normal'}">⏳ ${formatTimeRemaining(timeLeftMs)}</span>` : ''}
+          </div>
+        </div>
+        ${r.status === 'open' && !isExpired ? `<button class="btn btn-outline" onclick="resolveRequest(${r.id})">Mark Resolved</button>` : ''}
+      </div>
+    `}).join('');
+  }
+
+  function updateDonor(e) {
+    e.preventDefault();
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5'));
+    const index = donors.findIndex(d => d.id === currentUser.id);
+    
+    donors[index].name = document.getElementById('edit-d-name').value;
+    donors[index].city = document.getElementById('edit-d-city').value;
+    donors[index].pin = document.getElementById('edit-d-pin').value;
+    donors[index].times = parseInt(document.getElementById('edit-d-times').value);
+    donors[index].available = document.getElementById('edit-d-status').value === "true";
+    
+    localStorage.setItem('bb_donors_v5', JSON.stringify(donors));
+    currentUser = donors[index];
+    alert('Donor profile updated securely!');
+    renderDonorAlerts();
+    renderLiveInventory();
+  }
+
+  function updateBank(e) {
+    e.preventDefault();
+    const banks = JSON.parse(localStorage.getItem('bb_banks_v5'));
+    const index = banks.findIndex(b => b.id === currentUser.id);
+    
+    ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].forEach(bg => {
+      const id = 'edit-b-' + bg.replace('+', '_pos').replace('-', '_neg');
+      banks[index].stock[bg] = parseFloat(document.getElementById(id).value);
+    });
+    
+    localStorage.setItem('bb_banks_v5', JSON.stringify(banks));
+    currentUser = banks[index];
+    alert('Liters inventory updated securely!');
+    renderLiveInventory();
+  }
+
+  function resolveRequest(id) {
+    const reqs = JSON.parse(localStorage.getItem('bb_requests_v5'));
+    const index = reqs.findIndex(r => r.id === id);
+    reqs[index].status = 'resolved';
+    localStorage.setItem('bb_requests_v5', JSON.stringify(reqs));
+    loadReceiverWorkspace();
+  }
+
+  // --- 5. Bottom Live Inventory Calculation ---
+  function renderLiveInventory() {
+    const donors = JSON.parse(localStorage.getItem('bb_donors_v5')) || [];
+    const banks = JSON.parse(localStorage.getItem('bb_banks_v5')) || [];
+    const groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    const container = document.getElementById('live-inventory-grid');
+    
+    container.innerHTML = groups.map(bg => {
+      // 1 donor = 0.35 Liters
+      const donorCount = donors.filter(d => d.bg === bg && d.available).length;
+      const donorVolumeL = donorCount * 0.35;
+      
+      const bankVolumeL = banks.reduce((sum, b) => sum + (parseFloat(b.stock[bg]) || 0), 0);
+      const totalVolume = (donorVolumeL + bankVolumeL).toFixed(1);
+
+      return `
+        <div class="inventory-box">
+          <div class="grp">${bg}</div>
+          <div class="liters">${totalVolume} L</div>
+          <small style="color:#64748b; font-size:0.75rem;">${donorCount} donors + ${bankVolumeL.toFixed(1)}L bank</small>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // --- 6. Live Death Counter Simulation ---
+  let deathCount = 12410;
+  function startLiveDeathCounter() {
+    const el = document.getElementById('live-death-ticker');
+    // Periodically increment to illustrate real-time global mortality due to shortage
+    setInterval(() => {
+      deathCount += 1;
+      el.innerText = deathCount.toLocaleString();
+    }, 7000);
+  }
+
+  // --- 7. Live Heartbeat Loop (Updates timers, expires requests every second) ---
+  setInterval(() => {
+    // If currently on Donor profile, update countdown timers & auto-remove expired requests
+    if (currentRole === 'donor' && document.getElementById('tab-profile').classList.contains('active')) {
+      renderDonorAlerts();
+    }
+  }, 1000);
+
+  // Boot
+  initDB();
+  renderDirectory();
+  renderLiveInventory();
+  startLiveDeathCounter();
+</script>
+</body>
+</html>
